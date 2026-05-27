@@ -1,0 +1,25 @@
+# Core Framework
+fastapi
+uvicorn
+pydantic
+python-dotenv
+
+# Data Processing
+pandas
+numpy
+scipy
+tqdm
+
+# Machine Learning & Search
+sentence-transformers
+faiss-cpu
+scikit-learn
+implicit
+
+# API & LLM
+groq
+requests
+
+# Development
+ipykernel
+pytest
