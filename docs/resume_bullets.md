@@ -4,6 +4,11 @@ These bullets are optimized for modern ATS (Applicant Tracking Systems) and tech
 
 ---
 
+### High-Impact Version (Recommended for Top Level)
+*   **Built a hybrid podcast recommendation platform combining semantic retrieval (FAISS + SentenceTransformers) and collaborative filtering (ALS), supporting personalized discovery across 100k+ podcasts.**
+
+---
+
 ### One-Line Version (For concise experience sections)
 *   Engineered a hybrid recommendation system (FastAPI/React) using FAISS vector search and ALS collaborative filtering to deliver personalized, sub-second podcast discovery for 20k+ records.
 
