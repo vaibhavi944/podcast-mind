@@ -17,7 +17,6 @@ scikit-learn
 implicit
 
 # API & LLM
-groq
 requests
 
 # Development
