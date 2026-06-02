@@ -10,29 +10,28 @@ I built this project to demonstrate end-to-end machine learning engineering—fr
 
 ---
 
-## 🏗️ System Design
+## 🏗️ System Architecture
 
-I designed a two-stage retrieval and ranking pipeline. This approach allows the system to scan thousands of podcasts in milliseconds while maintaining high-quality, personalized results.
+The core of PodcastMind is its multi-stage ranking pipeline. When a user interacts with the app (via search or clicking a podcast), the system executes a sequence of retrieval, blending, and reranking steps.
 
 ```mermaid
-graph LR
-    subgraph "1. Retrieval Phase"
-        Search[Search Query] --> Vector(Semantic Search<br/>FAISS + MiniLM)
-        Click[Podcast Click] --> Behavioral(Collaborative Filtering<br/>ALS Matrix)
-    end
-
-    Vector --> Blend{Hybrid Blending}
-    Behavioral --> Blend
-
-    subgraph "2. Ranking & Refinement"
-        Blend --> Quality(Quality Heuristics<br/>Metadata Filtering)
-        Quality --> Perso(Personalization<br/>Taste Profile Boost)
-    end
-
-    Perso --> Results[Top-K Recommendations]
+graph TD
+    User[User Interaction] --> Router{Input Type}
     
-    style Blend fill:#f9f,stroke:#333,stroke-width:2px
-    style Results fill:#dfd,stroke:#333,stroke-width:4px
+    Router -->|Text Query| Semantic[Semantic Engine<br>SentenceTransformers]
+    Router -->|Item Click| Collab[Collaborative Engine<br>Implicit ALS]
+    
+    Semantic --> FAISS[(FAISS Index)]
+    Collab --> Matrix[(Item-Item Matrix)]
+    
+    FAISS --> Candidates[Candidate Generation Pool]
+    Matrix --> Candidates
+    
+    Candidates --> Blending[Hybrid Blending & Scoring]
+    
+    Blending --> Reranking[Quality Reranking<br>Metadata Boosts & Penalties]
+    Reranking --> Personalization[Client-Side Personalization Layer]
+    Personalization --> Final[Top-K Ranked Results]
 ```
 
 ---
