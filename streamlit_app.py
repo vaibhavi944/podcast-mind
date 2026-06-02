@@ -28,17 +28,47 @@ st.markdown("""
         border-radius: 20px;
         font-weight: 600;
     }
-    .podcast-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
+    /* Targeted styling for the podcast cards */
+    [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"] {
+        height: 100%;
     }
-    .podcast-card:hover {
-        border-color: #6366f1;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    .podcast-title {
+        height: 60px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        font-size: 1.15rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: 4px;
+    }
+    .podcast-author {
+        height: 24px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    .podcast-categories {
+        height: 44px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        font-size: 0.85rem;
+        margin: 12px 0;
+    }
+    .explanation-box {
+        height: 70px;
+        overflow: hidden;
+        background-color: #eff6ff;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        color: #1e40af;
+        margin-bottom: 16px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -82,15 +112,15 @@ def update_interests(podcast_categories):
         st.session_state.interests = new_interests
 
 def podcast_card(podcast, key_prefix=""):
-    """Renders a single podcast result."""
+    """Renders a single podcast result with fixed-height elements for alignment."""
     with st.container(border=True):
-        st.subheader(podcast.title)
-        st.caption(f"By {podcast.author}")
-        st.markdown(f"**Categories:** {podcast.categories}")
+        st.markdown(f'<div class="podcast-title">{podcast.title}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="podcast-author">By {podcast.author}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="podcast-categories"><b>Categories:</b> {podcast.categories}</div>', unsafe_allow_html=True)
         
-        # Explanation if available
-        if hasattr(podcast, 'explanation') and podcast.explanation:
-            st.info(f"✨ {podcast.explanation}")
+        # Fixed-height Explanation
+        exp = podcast.explanation if hasattr(podcast, 'explanation') and podcast.explanation else "Matched based on your specific interests and semantic relevance."
+        st.markdown(f'<div class="explanation-box">✨ {exp}</div>', unsafe_allow_html=True)
             
         col1, col2 = st.columns([1, 1.5])
         with col1:
