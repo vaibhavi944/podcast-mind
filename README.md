@@ -1,5 +1,9 @@
 # PodcastMind: Hybrid Recommendation Engine
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://podcast-mind-tghvnrjtrwba5tft8gmprt.streamlit.app/)
+
+**Live Demo:** [podcast-mind.streamlit.app](https://podcast-mind-tghvnrjtrwba5tft8gmprt.streamlit.app/)
+
 PodcastMind is a production-grade recommendation system built to solve the podcast discovery problem. Instead of relying on basic keyword matching, this system uses a hybrid architecture combining **dense vector semantic search** and **collaborative filtering** to deliver highly relevant, explainable recommendations.
 
 I built this project to demonstrate end-to-end machine learning engineering—from raw data processing to deploying a unified retrieval and ranking pipeline.
