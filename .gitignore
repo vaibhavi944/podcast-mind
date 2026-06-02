@@ -32,11 +32,19 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+
+# Allow specific artifacts for deployment
+!artifacts/faiss_index.index
+!artifacts/podcast_metadata.pkl
+!artifacts/als_model.pkl
+!artifacts/collaborative_mappings.pkl
+!artifacts/hybrid_config.pkl
+!artifacts/deployment_evidence.json
+!artifacts/eval_report.md
+
+# Keep general ignores for other data
 artifacts/*
 !artifacts/.gitkeep
-*.index
-*.pkl
-*.csv
 *.sqlite
 
 # Environment
