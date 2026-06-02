@@ -1,104 +1,114 @@
-# PodcastMind: Hybrid AI Podcast Recommendation System
+# PodcastMind: Hybrid Recommendation Engine
 
-PodcastMind is a production-grade discovery platform that moves beyond keyword matching. It utilizes semantic vector search and collaborative filtering to deliver highly relevant, explainable podcast suggestions with zero-login friction.
+PodcastMind is a production-grade recommendation system built to solve the podcast discovery problem. Instead of relying on basic keyword matching, this system uses a hybrid architecture combining **dense vector semantic search** and **collaborative filtering** to deliver highly relevant, explainable recommendations.
 
----
-
-## 🚀 The Value Proposition
-*   **Semantic Discovery:** Find shows based on *meaning*, not just keywords.
-*   **Hybrid Intelligence:** Blends content-based retrieval (FAISS) with behavioral modeling (ALS).
-*   **Instant Personalization:** No accounts required. Local-first onboarding provides immediate value.
-*   **Trust Through Explanations:** Every recommendation includes a clear, rule-based reason for its ranking.
+I built this project to demonstrate end-to-end machine learning engineering—from raw data processing to deploying a unified retrieval and ranking pipeline.
 
 ---
 
-## 🛠️ Architecture & Tech Stack
+## 🏗️ System Architecture
 
-### High-Level Architecture
+The core of PodcastMind is its multi-stage ranking pipeline. When a user interacts with the app (via search or clicking a podcast), the system executes a sequence of retrieval, blending, and reranking steps.
+
 ```mermaid
-graph LR
-    Data[2M+ Raw Records] --> Clean[Preprocessing Pipeline]
-    Clean --> Embed[MiniLM Embeddings]
-    Embed --> Vector[FAISS Index]
-    Vector --> Engine[Hybrid Ranking Engine]
-    Engine --> API[FastAPI Backend]
-    API --> UI[React Frontend]
+graph TD
+    User[User Interaction] --> Router{Input Type}
+    
+    Router -->|Text Query| Semantic[Semantic Engine<br>SentenceTransformers]
+    Router -->|Item Click| Collab[Collaborative Engine<br>Implicit ALS]
+    
+    Semantic --> FAISS[(FAISS Index)]
+    Collab --> Matrix[(Item-Item Matrix)]
+    
+    FAISS --> Candidates[Candidate Generation Pool]
+    Matrix --> Candidates
+    
+    Candidates --> Blending[Hybrid Blending & Scoring]
+    
+    Blending --> Reranking[Quality Reranking<br>Metadata Boosts & Penalties]
+    Reranking --> Personalization[Client-Side Personalization Layer]
+    Personalization --> Final[Top-K Ranked Results]
 ```
 
-### Technology Stack
-*   **Backend:** FastAPI, Python
-*   **Machine Learning:** SentenceTransformers, FAISS, Implicit (ALS), Scikit-Learn
-*   **Frontend:** React (Vite), TailwindCSS, Lucide-React
-*   **Data:** Pandas, NumPy, JSONL Streaming
+---
+
+## ⚙️ Core Engineering Components
+
+### 1. Semantic Retrieval (FAISS + MiniLM)
+Keyword search struggles with podcasts because descriptions are often abstract. I used `sentence-transformers/all-MiniLM-L6-v2` to generate 384-dimensional dense embeddings for podcast metadata. 
+*   **Vector Storage:** The embeddings are indexed using `FAISS` (Facebook AI Similarity Search).
+*   **Performance:** FAISS enables approximate nearest neighbor (ANN) retrieval across thousands of records in sub-millisecond timeframes.
+
+### 2. Collaborative Filtering (ALS)
+To capture behavioral patterns (i.e., "users who liked this also liked that"), I implemented an Alternating Least Squares (ALS) matrix factorization model using the `implicit` Python library. 
+*   This engine handles the "Explore Similar" feature, weighting behavioral signals heavier than semantic similarity when a user is deep-diving into a specific show.
+
+### 3. The Hybrid Engine (Ranking & Reranking)
+Retrieving candidates is only the first step. The `HybridEngine` orchestrates the final output:
+*   **Min-Max Normalization:** Aligns the wildly different score scales from FAISS (L2 distances) and ALS (dot products) to a standardized 0.0-1.0 range.
+*   **Weighted Blending:** Dynamically adjusts the importance of semantic vs. collaborative signals based on the user's context (e.g., Search = 100% Semantic, Discovery = 70% Collab / 30% Semantic).
+*   **Drift Penalization:** Aggressively penalizes results that drift too far from the original semantic intent.
+
+### 4. Zero-Login Personalization
+I wanted to reduce user friction while still offering a tailored feed.
+*   The system uses local browser state to track user category preferences.
+*   These preferences are passed into the hybrid engine to apply soft +25% boosts to relevant candidates during the final reranking phase.
 
 ---
 
-## 🧠 Engineering Highlights
+## 🛠️ Technology Stack
 
-### 1. Semantic Retrieval Engine
-We transformed podcast metadata into 384-dimensional dense vectors using the `all-MiniLM-L6-v2` model. Retrieval is handled by `FAISS`, enabling sub-millisecond similarity search across the entire dataset.
+*   **App Framework:** Streamlit (Unified frontend/backend for rapid cloud deployment)
+*   **Machine Learning:** `sentence-transformers`, `faiss-cpu`, `implicit`, `scikit-learn`
+*   **Data Processing:** `pandas`, `numpy`
+*   **Language:** Python 3.10+
 
-### 2. Multi-Stage Hybrid Ranking
-Recommendations are not just retrieved; they are ranked. Our pipeline includes:
-*   **Weighted Blending:** Balancing semantic relevance with behavioral popularity.
-*   **Quality Reranking:** Aggressive heuristics to penalize "spammy" metadata or poor descriptions.
-*   **Preference Boosting:** A +25% soft-boost for user-selected categories from onboarding.
-*   **Confidence Calibration:** Scores are compressed into a psychologically realistic 78%-94% range.
-
-### 3. Data Integrity & Scaling
-Handled a massive 2M+ record dataset through memory-safe JSONL streaming. Implemented strict semantic filtering to prune 90% of the noise, ensuring the engine focuses on content-rich entries.
+*Note: A previous iteration utilized FastAPI and React, but the architecture was migrated to Streamlit to simplify hosting the ML models on cloud infrastructure without hitting strict serverless memory limits.*
 
 ---
 
-## 🖼️ User Experience
+## 🚀 How to Run Locally
 
-### Onboarding
-A lightweight, zero-login "Taste Onboarding" flow allows users to tune their feed in under 10 seconds.
-
-### Intelligent Discovery
-The Discover page evolves as the user interacts. Selecting a show triggers the behavioral engine to find "More Like This" gems.
-
-### Explainable AI
-Every podcast card surfaces an explanation (e.g., *"Matches your interest in Technology"*), providing transparency and building user trust.
-
----
-
-## 📈 Evaluation & Results
-The system has been evaluated for:
-*   **Diversity:** Preventing "category collapse" in top results.
-*   **Relevance:** Tested across technical, historical, and ambiguous natural language queries.
-*   **Latency:** Average API response time of ~2.0s on CPU-based inference.
-
----
-
-## 🏁 Getting Started
+If you want to spin up the recommendation engine on your own machine:
 
 ### Prerequisites
-*   Python 3.10+
-*   Node.js (for frontend)
+*   Python 3.10 or higher
+*   Git
 
-### Installation
-1.  **Clone the Repo:** `git clone https://github.com/your-username/podcast-mind`
-2.  **Backend:**
+### Setup
+
+1.  **Clone the repository:**
     ```bash
-    python -m venv venv && source venv/bin/activate
+    git clone https://github.com/your-username/podcast-mind.git
+    cd podcast-mind
+    ```
+
+2.  **Create a virtual environment:**
+    ```bash
+    python -m venv venv
+    
+    # Windows
+    venv\Scripts\activate
+    
+    # macOS/Linux
+    source venv/bin/activate
+    ```
+
+3.  **Install dependencies:**
+    ```bash
     pip install -r requirements.txt
-    uvicorn backend.main:app --reload
     ```
-3.  **Frontend:**
+
+4.  **Run the Streamlit App:**
     ```bash
-    cd frontend
-    npm install
-    npm run dev
+    streamlit run streamlit_app.py
     ```
 
----
-
-## 🗺️ Roadmap & Future Improvements
-*   [ ] Live User Feedback Loop (Replacing synthetic ALS data)
-*   [ ] Multilingual Embedding Support
-*   [ ] Cross-Session Personalization Sync (Optional Auth)
-*   [ ] Advanced Learning-to-Rank (LTR) Layer
+The app will initialize the models, load the FAISS index from the `/artifacts` directory into memory, and launch the UI on `http://localhost:8501`.
 
 ---
-*Developed by [Your Name] as a showcase of modern Recommender System architecture.*
+
+## 📊 Design Trade-offs & Decisions
+
+*   **No LLMs for Generation:** I intentionally avoided using LLMs (like GPT-4) for generating the recommendations. While LLMs are great for natural language, they introduce unacceptable latency and non-determinism into a ranking pipeline. This system prioritizes speed, explainability, and mathematical rigor.
+*   **Pre-computed Artifacts:** The FAISS index and ALS models are pre-trained and saved as pickle/index files in the `artifacts/` folder. The app loads these into memory on startup rather than computing them on the fly, mimicking how production inference servers operate.
